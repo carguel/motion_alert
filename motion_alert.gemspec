@@ -5,8 +5,8 @@ require File.expand_path('../lib/motion_alert/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.name          = "motion_alert"
   gem.version       = MotionAlert::VERSION
-  gem.summary       = %q{TODO: Summary}
-  gem.description   = %q{TODO: Description}
+  gem.summary       = %q{Event handler for the motion program.}
+  gem.description   = %q{This gem provides convenient method to manage events detected by the motion program.}
   gem.license       = "MIT"
   gem.authors       = ["Christophe Arguel"]
   gem.email         = "christophe.arguel@free.fr"
