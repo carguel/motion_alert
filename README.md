@@ -1,20 +1,13 @@
 # motion_alert
 
-* [Homepage](https://rubygems.org/gems/motion_alert)
-* [Documentation](http://rubydoc.info/gems/motion_alert/frames)
-* [Email](mailto:christophe.arguel at free.fr)
-
 ## Description
-
-TODO: Description
+motion_alert aims to provide a command line tool to handle events detected by the [motion](http://motion.sf.net) program.
 
 ## Features
-
-## Examples
-
-    require 'motion_alert'
+  TODO
 
 ## Requirements
+  TODO
 
 ## Install
 

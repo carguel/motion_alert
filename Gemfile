@@ -14,5 +14,6 @@ end
 
 group :test do
   gem 'fakefs'
+  gem 'fakes3'
   gem 'pry'
 end

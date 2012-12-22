@@ -1,6 +1,7 @@
 require 'rspec'
 require 'factory_girl'
 require 'motion_alert/version'
+require 'aws-sdk'
 
 FactoryGirl.find_definitions
 
@@ -81,4 +82,45 @@ module MotionFolderFakeHelper
   def touch_file(filename)
        FileUtils.touch("#{motion_path}/#{filename}")
   end
+end
+
+module S3Helper
+  
+  class FakeS3
+
+    S3_PORT=9999
+
+    def initialize
+      @root = File.expand_path(File.join(__FILE__, "..", "fakefs_root"))
+      FileUtils.mkdir_p @root
+    end
+
+    def start
+      @pid=spawn("fakes3 -r #{@root} -h localtest.me -p #{S3_PORT}")
+      AWS.config(s3_port: S3_PORT, 
+                 s3_endpoint: 'localtest.me',
+                 use_ssl: false)
+    end
+
+    def exists?(bucket, path)
+      s3 = AWS::S3.new(access_key_id: "xxx", secret_access_key: "xxxx")
+      b = s3.buckets[bucket]
+      o = b.objects[path]
+      o.exists?
+    end
+
+    def stop
+     Process.kill(9, @pid)
+     FileUtils.rm_r(@root)
+    end
+  end
+  
+  def fakes3
+    @fakes3 ||= FakeS3.new
+  end
+end
+
+# Return the path of the sample image
+def sample_image
+  File.expand_path(File.join(__FILE__, "..", "data", "images", "sample.jpg"))
 end

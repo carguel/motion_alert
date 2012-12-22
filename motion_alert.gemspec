@@ -7,7 +7,7 @@ Gem::Specification.new do |gem|
   gem.version       = MotionAlert::VERSION
   gem.summary       = %q{Event handler for the motion program.}
   gem.description   = %q{This gem provides convenient method to manage events detected by the motion program.}
-  gem.license       = "MIT"
+  gem.license       = "LGPL V3"
   gem.authors       = ["Christophe Arguel"]
   gem.email         = "christophe.arguel@free.fr"
   gem.homepage      = "https://rubygems.org/gems/motion_alert"
@@ -17,8 +17,8 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ['lib']
 
-  gem.add_runtime_dependency     'mail'
-  gem.add_runtime_dependency     'aws-sdk'
+  gem.add_runtime_dependency     'mail', '~> 2.5'
+  gem.add_runtime_dependency     'aws-sdk', '~> 1.8' 
 
   gem.add_development_dependency 'bundler', '~> 1.0'
   gem.add_development_dependency 'rake', '~> 0.8'

@@ -1,6 +1,7 @@
 require 'spec_helper'
 require 'motion_alert'
 require 'motion_alert/event'
+require 'motion_alert/notification'
 require 'mail'
 
 module MotionAlert
