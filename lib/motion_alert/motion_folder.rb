@@ -10,10 +10,11 @@ module MotionAlert
     attr_reader :folder_path
 
     def initialize(folder_path, options = nil)
+      raise Errno::ENOENT.new("directory #{folder_path} does not exits") unless File.directory?(folder_path)
       @folder_path = folder_path
       @options = {}
       @options[:time_tolerance] = TIME_TOLERANCE
-      @options.merge options if options
+      @options.merge! options if options
     end
 
     def recent_image
@@ -23,7 +24,7 @@ module MotionAlert
       .sort do |a, b|
             ta = time_from_filename a
             tb = time_from_filename b
-            ta <=> tb
+            tb <=> ta
       end
       .find do |image|
         (time_from_filename(image) - Time.now).abs < time_tolerance

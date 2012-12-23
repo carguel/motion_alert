@@ -27,6 +27,5 @@ module MotionAlert
 
       end
     end
-
   end
 end

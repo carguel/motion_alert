@@ -1,9 +1,27 @@
 require 'aws-sdk'
+require 'backports'
 
 module MotionAlert::Notifiers
 
   # Notifier that pushes the file associated to a notification to an S3 bucket
   class S3Notifier
+
+    attr_reader :path
+
+    REQUIRED_OPTIONS = [:aws_access_key, :aws_secret_key, :s3_bucket_name]
+
+    def self.from_options(opts)
+      options = Hash.new().merge(opts)
+      options.symbolize_keys!
+
+      missings = REQUIRED_OPTIONS - options.keys
+
+      unless missings.empty?
+        raise "the following parameters are missing: #{missings.join ","}"
+      end
+
+      new(options[:aws_access_key], options[:aws_secret_key], options[:bucket_name], options[:s3_path])
+    end
 
     # Instanciate a notifier
     # @param [String] accesskey AWS Access Key
@@ -20,6 +38,7 @@ module MotionAlert::Notifiers
     # Store the file associated to the notification to S3
     # @param [MotionAlert::Notification] notification notification by a MotionAlert hook
     def process(notification)
+      return if notification.recent_image.nil?
       image_name = File.basename(notification.recent_image)
       obj = bucket.objects["#{@path}/#{image_name}"]
       obj.write(Pathname.new(notification.recent_image))

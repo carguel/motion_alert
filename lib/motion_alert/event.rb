@@ -1,3 +1,4 @@
+require 'motion_alert/notification'
 module MotionAlert
   class Event
     

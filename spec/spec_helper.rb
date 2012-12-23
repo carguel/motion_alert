@@ -97,16 +97,24 @@ module S3Helper
 
     def start
       @pid=spawn("fakes3 -r #{@root} -h localtest.me -p #{S3_PORT}")
+      sleep 0.5
       AWS.config(s3_port: S3_PORT, 
                  s3_endpoint: 'localtest.me',
                  use_ssl: false)
     end
 
-    def exists?(bucket, path)
+    def exists?(bucket_name, path)
       s3 = AWS::S3.new(access_key_id: "xxx", secret_access_key: "xxxx")
-      b = s3.buckets[bucket]
+      b = s3.buckets[bucket_name]
       o = b.objects[path]
       o.exists?
+    end
+
+    def objects_in_bucket(bucket_name)
+      s3 = AWS::S3.new(access_key_id: "xxx", secret_access_key: "xxxx")
+      s3.buckets.create bucket_name
+      b = s3.buckets[bucket_name]
+      o = b.objects
     end
 
     def stop

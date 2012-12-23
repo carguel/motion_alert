@@ -19,6 +19,8 @@ Gem::Specification.new do |gem|
 
   gem.add_runtime_dependency     'mail', '~> 2.5'
   gem.add_runtime_dependency     'aws-sdk', '~> 1.8' 
+  gem.add_runtime_dependency     'backports', '~> 2.6'
+  gem.add_runtime_dependency     'thor', '~> 0.14.6'
 
   gem.add_development_dependency 'bundler', '~> 1.0'
   gem.add_development_dependency 'rake', '~> 0.8'

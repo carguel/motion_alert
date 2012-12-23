@@ -9,6 +9,13 @@ module MotionAlert
 
     include MotionFolderFakeHelper
 
+    describe "#new" do
+
+      it "should raise an error when folder does not exists" do
+        expect{MotionFolder.new("/invalid_path/invalid_file")}.to raise_error
+      end
+    end
+
     describe "#recent_image" do
       it "should return the path of an image stored in the motion folder no more than 2 seconds ago" do
         mf = MotionFolder.new(motion_path)

@@ -1,0 +1,81 @@
+#!/usr/bin/env ruby
+
+
+$LOAD_PATH << File.expand_path(File.join(__FILE__, "..", "..", "lib"))
+
+require 'thor'
+require 'motion_alert'
+
+class MotionAlertThor < Thor
+
+  desc "start_event", "Define how to handle the start of a motion event"
+  option :notifiers, 
+          banner: "List of notifiers", 
+          type: :array, 
+          required: true
+  option :aws_access_key,
+          banner: "AWS Access key, required when s3 notifier is selected",
+          type: :string,
+          required: false
+  option :aws_secret_key,
+          banner: "AWS Secret key, required when s3 notifier is selected",
+          type: :string,
+          required: false
+  option :s3_bucket_name,
+          banner: "Bucket name where to store an image on S3, required when s3 notifier is selected",
+          type: :string,
+          required: false
+  option :s3_path,
+          banner: "Optional path under the bucket where to store an image on S3, default = '/'",
+          type: :string,
+          required: false
+  option :mail_from,
+          banner: "Originator address of the mails to send, required when mail notifier is selected",
+          type: :string,
+          required: false
+  option :mail_to,
+          banner: "List of recipients to send email to, required when mail notifier is selected",
+          type: :array,
+          required: false
+  option :mail_subject,
+          banner: "Subject of the mail to send, required when mail notifier is selected",
+          type: :string,
+          required: false
+  option :mail_text,
+          banner: "Body of the mail to send, required when s3 notifier is selected",
+          type: :string,
+          required: false
+  option :motion_folder,
+          banner: "Path of the directory where motion stores images and movies",
+          type: :string,
+          required: true
+  long_desc <<-DESC
+            Define how to handle the start of a motion event.
+            
+            An event is handled by the notifiers defined with the --notifiers flag.
+
+            The supported notifiers are
+            \x5* mail: send an email to a list of recipients, including an image associated to the event
+            \x5* s3: store on a S3 bucket an image associated to the event
+            DESC
+  def start_event
+    folder = MotionAlert::MotionFolder.new(options[:motion_folder])
+    event = MotionAlert::Event.new(folder)
+
+    notifier_map = {"s3" => MotionAlert::Notifiers::S3Notifier, "mail" => MotionAlert::Notifiers::MailNotifier}
+
+    options[:notifiers].each do |n|
+      if clazz = notifier_map[n]
+        notifier = clazz.send(:from_options, options)
+        event.register(notifier)
+      end
+    end
+
+    event.start
+
+  end
+
+  private
+end
+
+MotionAlertThor.start(ARGV)
