@@ -1,7 +1,9 @@
+#encoding: UTF-8
 require 'spec_helper'
 require 'motion_alert/notifiers/mail_notifier'
 require 'mail'
 require 'backports'
+
 
 module MotionAlert::Notifiers
 
@@ -36,30 +38,29 @@ module MotionAlert::Notifiers
 
 
     describe "#process" do
-      subject {MailNotifier.new(recipients, sender, mail_subject, mail_message)}
+      include Mail::Matchers
+
       it "should send an email including the image given by the notification to the proper recipients" do
         notification = mock
-        notification.should_receive(:recent_image) 
+        notification.should_receive(:recent_image).and_return(sample_image) 
 
-        mail = mock
-        mail.should_receive(:to).with(recipients)
-        mail.should_receive(:from).with(sender)
-        mail.should_receive(:subject).with(mail_subject)
+        notifier = MailNotifier.new(recipients, sender, mail_subject, mail_message)
 
-        text_part = mock()
-        text_part.should_receive(:body).with(mail_message)
-        text_part.should_receive(:content_type)
+        Mail.defaults do
+          delivery_method :test
+        end
+
+        notifier.process(notification)
+
+        Mail.should have_sent_email
+        Mail.should have_sent_email.from sender
+        Mail.should have_sent_email.to recipients
+        Mail.should have_sent_email.with_subject mail_subject
         
-        mail.should_receive(:text_part) do |&arg|
-          text_part.instance_eval(&arg)
-        end
-
-
-        Mail.should_receive(:deliver) do |&arg|
-          mail.instance_eval(&arg)  
-        end
-
-        subject.process(notification)
+        mail = Mail::TestMailer.deliveries.first
+        mail.parts[0].body.should eq mail_message
+        mail.attachments[0].filename.should eq File.basename(sample_image)
+        mail.attachments[0].body.should eq File.read(sample_image, encoding: "ASCII-8BIT")
       end
 
       def mock_mail
