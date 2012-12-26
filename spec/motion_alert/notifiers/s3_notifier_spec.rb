@@ -18,7 +18,7 @@ module MotionAlert::Notifiers
         it "should return a S3Notifier object" do
           expect(S3Notifier.from_options(aws_access_key: "access",
                                           aws_secret_key: "secret",
-                                          s3_bucket_name: "bucket"
+                                          bucket_name: "bucket"
                                          )
                  ).to be_a_kind_of S3Notifier
         end
@@ -29,8 +29,8 @@ module MotionAlert::Notifiers
           path = "my_path/my_subpath"
           s3 = S3Notifier.from_options(aws_access_key: "access",
                                           aws_secret_key: "secret",
-                                          s3_bucket_name: "bucket",
-                                          s3_path: path
+                                          bucket_name: "bucket",
+                                          path: path
                                          )
           expect(s3).to be_a_kind_of S3Notifier
           expect(s3.path).to eq path

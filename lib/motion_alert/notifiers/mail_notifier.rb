@@ -6,7 +6,7 @@ module MotionAlert::Notifiers
 
     attr_reader :from, :recipients, :subject, :message
 
-    REQUIRED_OPTIONS = [:mail_subject, :mail_text, :mail_from, :mail_to] 
+    REQUIRED_OPTIONS = [:subject, :text, :from, :to] 
 
     def self.from_options(opts)
       options = Hash.new.merge(opts).symbolize_keys
@@ -14,7 +14,7 @@ module MotionAlert::Notifiers
       unless missings.empty?
         raise "The following required options are missing: #{missings.join(",")}"
       end
-      MailNotifier.new(options[:mail_to], options[:mail_from], options[:mail_subject], options[:mail_text])
+      MailNotifier.new(options[:to], options[:from], options[:subject], options[:text])
     end
 
     def initialize(recipients, from, subject, message)

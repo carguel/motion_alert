@@ -31,7 +31,7 @@ module MotionAlert::Notifiers
 
       context "when all required options are given" do
         it "should return a MailNotifier object" do
-          expect(MailNotifier.from_options(mail_text: mail_message, mail_subject: mail_subject, mail_to: recipients, mail_from: sender)).to be_a_kind_of MailNotifier
+          expect(MailNotifier.from_options(text: mail_message, subject: mail_subject, to: recipients, from: sender)).to be_a_kind_of MailNotifier
         end
       end
     end

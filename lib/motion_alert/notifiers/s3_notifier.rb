@@ -8,7 +8,7 @@ module MotionAlert::Notifiers
 
     attr_reader :path
 
-    REQUIRED_OPTIONS = [:aws_access_key, :aws_secret_key, :s3_bucket_name]
+    REQUIRED_OPTIONS = [:aws_access_key, :aws_secret_key, :bucket_name]
 
     def self.from_options(opts)
       options = Hash.new().merge(opts)
@@ -20,7 +20,7 @@ module MotionAlert::Notifiers
         raise "the following parameters are missing: #{missings.join ","}"
       end
 
-      new(options[:aws_access_key], options[:aws_secret_key], options[:bucket_name], options[:s3_path])
+      new(options[:aws_access_key], options[:aws_secret_key], options[:bucket_name], options[:path])
     end
 
     # Instanciate a notifier
