@@ -22,29 +22,28 @@ module MotionAlert
         path.match /\d\d-\d{14}/
       end
       .sort do |a, b|
-            ta = time_from_filename a
-            tb = time_from_filename b
-            tb <=> ta
+        ta = time_from_filename a
+        tb = time_from_filename b
+        tb <=> ta
       end
       .find do |image|
         (time_from_filename(image) - Time.now).abs < time_tolerance
       end
-      
+
       return nil unless image
 
       File.join(folder_path, File.basename(image))
     end
+
+    private
+
+    def time_from_filename(filename)
+      m = filename.match /\d\d-(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/
+      Time.mktime(*m[1..6])
+    end
+
+    def time_tolerance
+      @options[:time_tolerance]
+    end
   end
-
-  private
-
-  def time_from_filename(filename)
-    m = filename.match /\d\d-(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/
-    Time.mktime(*m[1..6])
-  end
-
-  def time_tolerance
-    @options[:time_tolerance]
-  end
-
 end

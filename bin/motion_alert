@@ -9,11 +9,11 @@ require 'motion_alert/cli/helper'
 
 class MotionAlertThor < Thor
 
-  desc "start_event", "Define how to handle the start of a motion event"
-  method_option :notifiers, 
-          banner: "List of notifiers", 
-          type: :array, 
-          required: true
+  desc "start_event MOTION_FOLDER", "Define how to handle the start of a motion event"
+  method_option :s3,
+          banner: "Enable the S3 notifier",
+          type: :boolean,
+          required: false
   method_option :s3_aws_access_key,
           banner: "AWS Access key, required when s3 notifier is selected",
           type: :string,
@@ -29,6 +29,10 @@ class MotionAlertThor < Thor
   method_option :s3_path,
           banner: "Optional path under the bucket where to store an image on S3, default = '/'",
           type: :string,
+          required: false
+  method_option :mail,
+          banner: "Enable the mail notifier",
+          type: :boolean,
           required: false
   method_option :mail_from,
           banner: "Originator address of the mails to send, required when mail notifier is selected",
@@ -46,10 +50,10 @@ class MotionAlertThor < Thor
           banner: "Body of the mail to send, required when s3 notifier is selected",
           type: :string,
           required: false
-  method_option :motion_folder,
-          banner: "Path of the directory where motion stores images and movies",
-          type: :string,
-          required: true
+  method_option :ckt,
+          banner: "Enable the ClickATell notifier",
+          type: :boolean,
+          required: false
   method_option :ckt_user,
           banner: "User to connect to the ClickATell HTTP API",
           type: :string,
@@ -69,33 +73,46 @@ class MotionAlertThor < Thor
           required: false
   long_desc <<-DESC
             Define how to handle the start of a motion event.
-            
-            An event is handled by the notifiers defined with the --notifiers flag.
 
-            The supported notifiers are
-            \x5* mail: send an email to a list of recipients, including an image associated to the event
-            \x5* s3: store on a S3 bucket an image associated to the event
-            \x5* ckt: send a SMS using the ClickATell HTTP API
-            DESC
-  def start_event
-    folder = MotionAlert::MotionFolder.new(options[:motion_folder])
+            The MOTION_FOLDER is the path of the directory where motion is configured to store images and movies.
+            At least, one notifier shall be activated.
+
+            The supported notifiers are:
+            \x5- mail: send an email to a list of recipients, including an image associated to the event
+            \x5- s3: store on a S3 bucket an image associated to the event
+            \x5- ckt: send a SMS using the ClickATell HTTP API
+  DESC
+  def start_event(motion_folder)
+    folder = MotionAlert::MotionFolder.new(motion_folder)
     event = MotionAlert::Event.new(folder)
 
-    notifier_map = {"s3" => MotionAlert::Notifiers::S3Notifier, 
+    notifier_map = {"s3"   => MotionAlert::Notifiers::S3Notifier, 
                     "mail" => MotionAlert::Notifiers::MailNotifier,
-                    "ckt" => MotionAlert::Notifiers::ClickATell}
+                    "ckt"  => MotionAlert::Notifiers::ClickATell}
 
-    options[:notifiers].each do |n|
-      if clazz = notifier_map[n]
-        opts = MotionAlert::CLI::Helper.options_for_notifier(n, options)
-        notifier = clazz.send(:from_options, opts)
-        event.register(notifier)
-      end
+    notifiers = notifier_map.keys & options.keys
+
+    raise "No notifier specified" if notifiers.empty?
+
+    notifiers.each do |n|
+      opts = MotionAlert::CLI::Helper.options_for_notifier(n, options)
+      clazz = notifier_map[n]
+      notifier = clazz.send(:from_options, opts)
+      event.register(notifier)
     end
 
     event.start
-
   end
 end
 
-MotionAlertThor.start(ARGV)
+begin
+  MotionAlertThor.start(ARGV)
+rescue Exception => e
+  STDERR.puts <<-END
+An error occured.
+The followng message was raised:
+
+#{e.message.sub /^/, "\t"}
+  END
+end
+
